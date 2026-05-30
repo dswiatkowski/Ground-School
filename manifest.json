@@ -1,0 +1,38 @@
+{
+  "name": "KAPA Ground School — Private Pilot",
+  "short_name": "Ground School",
+  "description": "Private Pilot ground school curriculum focused on Centennial Airport (KAPA), Colorado.",
+  "start_url": "./ground-school.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05080d",
+  "theme_color": "#0a121c",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

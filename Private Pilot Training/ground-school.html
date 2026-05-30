@@ -6,7 +6,7 @@
 <title>KAPA Ground School // Private Pilot</title>
 
 <!-- PWA / installable on Android home screen -->
-<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a121c" />
 <meta name="color-scheme" content="dark" />
 
@@ -150,6 +150,16 @@ body::after{
   padding:6px 12px;
   background:rgba(15,26,40,.6);
 }
+.install-btn{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:rgba(255,180,60,.08);color:var(--amber);
+  border:1px solid rgba(255,180,60,.4);border-radius:6px;
+  padding:6px 12px;cursor:pointer;
+  transition:all .15s;
+}
+.install-btn:hover{background:rgba(255,180,60,.16);box-shadow:0 0 12px rgba(255,180,60,.25)}
+.install-btn svg{filter:drop-shadow(0 0 4px var(--amber-glow))}
 .callsign b{color:var(--amber);font-weight:500}
 .streak{
   display:flex;align-items:center;gap:8px;
@@ -952,6 +962,10 @@ body::after{
     </nav>
 
     <div class="top-right">
+      <button id="installBtn" class="install-btn" style="display:none" title="Install as Android/iOS app">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+        <span>Install</span>
+      </button>
       <div class="callsign" id="callsignChip">CALLSIGN <b id="callsignText">— —</b></div>
       <div class="streak" title="Daily streak">
         <svg class="flame" width="14" height="14" viewBox="0 0 24 24" fill="#ffb43c"><path d="M12 2c1 4-3 5-3 9a3 3 0 006 0c0-1-.5-2-1-2 2 1 3 3 3 5a5 5 0 11-10 0c0-4 4-7 5-12z"/></svg>
@@ -8780,18 +8794,59 @@ if('serviceWorker' in navigator){
 
 /* Install prompt — capture and offer "Install" if available */
 let deferredInstallPrompt = null;
+const installBtn = document.getElementById('installBtn');
+
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
+}
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  /* Show a subtle toast inviting install */
-  setTimeout(() => {
-    if(!deferredInstallPrompt) return;
-    toast('// AVAILABLE','Install as App','Tap menu (⋮) → "Install app" or "Add to Home screen"','amber');
-  }, 4000);
+  if(installBtn && !isStandalone()){
+    installBtn.style.display = 'flex';
+    toast('// AVAILABLE','Install as app','Tap the Install button (top right) to add to home screen.','amber');
+  }
 });
+
+if(installBtn){
+  installBtn.addEventListener('click', async () => {
+    if(deferredInstallPrompt){
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice.catch(()=>null);
+      if(choice && choice.outcome === 'accepted'){
+        toast('// INSTALLING','Adding to home screen','One moment...','green');
+      }
+      deferredInstallPrompt = null;
+      installBtn.style.display = 'none';
+    } else {
+      /* Fallback for iOS or browsers that don't fire beforeinstallprompt */
+      const ua = navigator.userAgent.toLowerCase();
+      const isIOS = /iphone|ipad|ipod/.test(ua);
+      if(isIOS){
+        toast('// IOS','Add to home screen','Tap Share, then "Add to Home Screen".','cyan');
+      } else {
+        toast('// MENU','Use Chrome menu','Tap the ⋮ menu, then "Install app" or "Add to Home screen".','cyan');
+      }
+    }
+  });
+
+  /* Show button on Android/iOS Chrome even before beforeinstallprompt fires,
+     so the user has a discoverable path. We hide it if already installed. */
+  if(!isStandalone()){
+    const ua = navigator.userAgent.toLowerCase();
+    const isMobile = /android|iphone|ipad|ipod|mobile/.test(ua);
+    if(isMobile){
+      installBtn.style.display = 'flex';
+    }
+  }
+}
+
 window.addEventListener('appinstalled', () => {
   toast('// INSTALLED','App ready','Find it on your home screen.','green');
   deferredInstallPrompt = null;
+  if(installBtn) installBtn.style.display = 'none';
 });
 </script>
 

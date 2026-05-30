@@ -2,12 +2,12 @@
    Caches the app shell for offline use. Update CACHE_VERSION to force
    refresh after content updates.
 */
-const CACHE_VERSION = 'kapa-gs-v1';
+const CACHE_VERSION = 'kapa-gs-v2';
 const ASSETS = [
   './',
   './index.html',
   './ground-school.html',
-  './manifest.webmanifest',
+  './manifest.json',
   './icon-192.png',
   './icon-512.png',
   './icon-192-maskable.png',
